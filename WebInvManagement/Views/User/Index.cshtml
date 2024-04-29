@@ -1,0 +1,111 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Information</title>
+    <style>
+        :root {
+            --primary-100: #2E8B57;
+            --primary-200: #61bc84;
+            --primary-300: #c6ffe6;
+            --accent-100: #8FBC8F;
+            --accent-200: #345e37;
+            --text-100: #FFFFFF;
+            --text-200: #e0e0e0;
+            --bg-100: #1E1E1E;
+            --bg-200: #2d2d2d;
+            --bg-300: #454545;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-100);
+            color: var(--text-100);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: var(--bg-300);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden; /* Добавлено, чтобы скрыть излишнее содержимое */
+        }
+
+        h1 {
+            color: var(--primary-100);
+        }
+
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .user-info div {
+            flex: 1;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: var(--bg-200);
+            margin-right: 10px;
+        }
+
+        .user-info div:last-child {
+            margin-right: 0;
+        }
+
+        .label {
+            font-weight: bold;
+            color: var(--text-200);
+        }
+
+        .value {
+            color: var(--text-100);
+        }
+
+        .profile-picture {
+            width: 100px; /* Ширина фото */
+            height: 100px; /* Высота фото */
+            border-radius: 50%; /* Для круглой формы */
+            object-fit: cover; /* Заполнение области */
+            margin-bottom: 20px; /* Добавлено нижнее отступ */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>User Information</h1>
+        <img class="profile-picture" src="path/to/profile-picture.jpg" alt="Profile Picture"> <!-- Замените src и alt на свои значения -->
+        <div class="user-info">
+            <div>
+                <span class="label">Name:</span>
+                <span class="value">John Doe</span>
+            </div>
+            <div>
+                <span class="label">Email:</span>
+                <span class="value">john.doe@example.com</span>
+            </div>
+        </div>
+        <div class="user-info">
+            <div>
+                <span class="label">Role:</span>
+                <span class="value">Administrator</span>
+            </div>
+            <div>
+                <span class="label">Location:</span>
+                <span class="value">Warehouse A</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
