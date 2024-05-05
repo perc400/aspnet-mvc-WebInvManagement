@@ -1,31 +1,15 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<ProductionStock>
+
 @{
+    ViewData["Title"] = "ProductionStock Page";
 }
 
 <!DOCTYPE html>
 <html>
 <head>
-    <title>@ViewData["Title"]</title>
     <style>
-        :root {
-            --primary-100: #2E8B57;
-            --primary-200: #61bc84;
-            --primary-300: #c6ffe6;
-            --accent-100: #8FBC8F;
-            --accent-200: #345e37;
-            --text-100: #FFFFFF;
-            --text-200: #e0e0e0;
-            --bg-100: #1E1E1E;
-            --bg-200: #2d2d2d;
-            --bg-300: #454545;
-        }
-
         body {
             font-family: Arial, sans-serif;
-            background-color: var(--bg-200);
-            color: var(--text-100);
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -45,16 +29,13 @@
         th, td {
             padding: 10px;
             text-align: left;
-            border-bottom: 1px solid var(--bg-300);
+            border-bottom: 1px;
         }
 
         th {
-            background-color: var(--primary-200);
-            color: var(--text-100);
         }
 
         tr:hover {
-            background-color: var(--bg-300);
         }
     </style>
 </head>
@@ -67,8 +48,6 @@
                     <th>ID</th>
                     <th>Quantity</th>
                     <th>Stock Type</th>
-                    <th>ABC Group</th>
-                    <th>XYZ Group</th>
                     <th>Last Order Date</th>
                     <th>Last Updated</th>
                     <th>Lead Time</th>
@@ -80,23 +59,22 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Placeholder rows -->
-                <tr>
-                    <td>1</td>
-                    <td>100</td>
-                    <td>Raw Material</td>
-                    <td>A</td>
-                    <td>X</td>
-                    <td>2024-04-25</td>
-                    <td>2024-04-25</td>
-                    <td>5 days</td>
-                    <td>500</td>
-                    <td>100</td>
-                    <td>Some notes...</td>
-                    <td>High</td>
-                    <td>Active</td>
-                </tr>
-                <!-- More rows can be added here -->
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td>@item.Quantity</td>
+                        <td>@item.StockTypeId</td>
+                        <td>@item.LastOrderDate</td>
+                        <td>@item.LastUpdated</td>
+                        <td>@item.LeadTime</td>
+                        <td>@item.MaxOrderQuantity</td>
+                        <td>@item.MinOrderQuantity</td>
+                        <td>@item.Notes</td>
+                        <td>@item.ServiceLevel</td>
+                        <td>@item.Status</td>
+                    </tr>
+                }
             </tbody>
         </table>
     </div>
