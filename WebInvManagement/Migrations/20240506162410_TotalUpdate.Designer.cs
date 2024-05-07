@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebInvManagement.Data;
 
@@ -11,9 +12,10 @@ using WebInvManagement.Data;
 namespace WebInvManagement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240506162410_TotalUpdate")]
+    partial class TotalUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -112,16 +114,7 @@ namespace WebInvManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int?>("DailyConsumption")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ExpectedConsumptionDuringLeadTime")
-                        .HasColumnType("int");
-
                     b.Property<int?>("MaxDesiredLevel")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("MaximumDesirableStockLevel")
                         .HasColumnType("int");
 
                     b.Property<int?>("OptimalOrderSize")
@@ -130,20 +123,11 @@ namespace WebInvManagement.Migrations
                     b.Property<int?>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ReorderPoint")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("SafetyStock")
-                        .HasColumnType("int");
-
                     b.Property<int?>("StockTypeId")
                         .HasColumnType("int");
 
                     b.Property<int?>("ThresholdLevel")
                         .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

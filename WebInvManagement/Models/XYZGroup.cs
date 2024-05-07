@@ -13,5 +13,8 @@ namespace WebInvManagement.Models
         [ForeignKey("IMStrategy")]
         public int? StrategyId { get; set; }
         public IMStrategy? Strategy { get; set; }
+
+        // Many-to-many
+        public ICollection<XYZProductionStock>? XYZProductionStocks { get; set; }
     }
 }

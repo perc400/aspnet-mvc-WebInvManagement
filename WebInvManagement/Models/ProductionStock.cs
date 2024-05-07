@@ -8,28 +8,29 @@ namespace WebInvManagement.Models
         [Key]
         public int Id { get; set; }
         public int? Quantity { get; set; }
+        public string? Title { get; set; }
+
         //FK from StockType
         [ForeignKey("StockType")]
         public int? StockTypeId { get; set; }
         public StockType? StockType { get; set; }
-        // FK from ABC
-        [ForeignKey("ABCGroup")]
-        public int? ABCId { get; set;}
-        public ABCGroup? ABCGroup { get; set; }
-        // FK from XYZ
-        [ForeignKey("XYZGroup")]
-        public int? XYZId { get; set; }
-        public XYZGroup? XYZGroup { get; set; }
-        // Many-to-many
+        
+        // Many-to-many [Warehouse has Stock]
         public ICollection<WarehouseProductionStock>? WarehouseProductionStocks { get; set; }
+        // Many-to-many [ABC has Stock]
+        public ICollection<ABCProductionStock>? ABCProductionStocks { get; set; }
+        // Many-to-many [XYZ has Stock]
+        public ICollection<XYZProductionStock>? XYZProductionStocks { get; set; }
 
-        public DateTime? LastUpdated { get; set; }
-        public int? MinOrderQuantity { get; set; }
-        public int? MaxOrderQuantity { get; set; }
-        public DateTime? LastOrderDate { get; set; }
-        public string? Notes { get; set; }
-        public string? Status { get; set; }
-        public string? ServiceLevel { get; set; }
-        public string? LeadTime { get; set; }
+        public int? ThresholdLevel { get; set; } // пороговый уровень запасов
+        public int? MaxDesiredLevel { get; set; } // максимальный желаемый уровень запасов
+        public int? OptimalOrderSize { get; set; } // оптимальный размер заказа
+
+        // Дополнительные поля для системы управления запасами
+        public int? DailyConsumption { get; set; } // дневное потребление товара на складе
+        public int? SafetyStock { get; set; } // гарантийный запас на складе
+        public int? ExpectedConsumptionDuringLeadTime { get; set; } // ожидаемое потребление товара на складе за время выполнения заказа
+        public int? ReorderPoint { get; set; } // пороговый уровень запасов на складе
+        public int? MaximumDesirableStockLevel { get; set; } // максимальный желательный уровень запасов на складе
     }
 }

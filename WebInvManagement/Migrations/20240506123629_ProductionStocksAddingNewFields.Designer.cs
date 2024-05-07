@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebInvManagement.Data;
 
@@ -11,9 +12,10 @@ using WebInvManagement.Data;
 namespace WebInvManagement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240506123629_ProductionStocksAddingNewFields")]
+    partial class ProductionStocksAddingNewFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,21 +46,6 @@ namespace WebInvManagement.Migrations
                     b.HasIndex("StrategyId");
 
                     b.ToTable("ABCGroups");
-                });
-
-            modelBuilder.Entity("WebInvManagement.Models.ABCProductionStock", b =>
-                {
-                    b.Property<int>("ABCId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProductionStockId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ABCId", "ProductionStockId");
-
-                    b.HasIndex("ProductionStockId");
-
-                    b.ToTable("ABCProductionStocks");
                 });
 
             modelBuilder.Entity("WebInvManagement.Models.IMStrategy", b =>
@@ -112,17 +99,29 @@ namespace WebInvManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int?>("DailyConsumption")
+                    b.Property<int?>("ABCId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ExpectedConsumptionDuringLeadTime")
-                        .HasColumnType("int");
+                    b.Property<DateTime?>("LastOrderDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LastUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LeadTime")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("MaxDesiredLevel")
                         .HasColumnType("int");
 
-                    b.Property<int?>("MaximumDesirableStockLevel")
+                    b.Property<int?>("MaxOrderQuantity")
                         .HasColumnType("int");
+
+                    b.Property<int?>("MinOrderQuantity")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("OptimalOrderSize")
                         .HasColumnType("int");
@@ -130,11 +129,11 @@ namespace WebInvManagement.Migrations
                     b.Property<int?>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ReorderPoint")
-                        .HasColumnType("int");
+                    b.Property<string>("ServiceLevel")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("SafetyStock")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("StockTypeId")
                         .HasColumnType("int");
@@ -142,12 +141,16 @@ namespace WebInvManagement.Migrations
                     b.Property<int?>("ThresholdLevel")
                         .HasColumnType("int");
 
-                    b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("XYZId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ABCId");
+
                     b.HasIndex("StockTypeId");
+
+                    b.HasIndex("XYZId");
 
                     b.ToTable("ProductionStocks");
                 });
@@ -194,6 +197,9 @@ namespace WebInvManagement.Migrations
 
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("UnitPrice")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -325,21 +331,6 @@ namespace WebInvManagement.Migrations
                     b.ToTable("XYZGroups");
                 });
 
-            modelBuilder.Entity("WebInvManagement.Models.XYZProductionStock", b =>
-                {
-                    b.Property<int>("XYZId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProductionStockId")
-                        .HasColumnType("int");
-
-                    b.HasKey("XYZId", "ProductionStockId");
-
-                    b.HasIndex("ProductionStockId");
-
-                    b.ToTable("XYZProductionStocks");
-                });
-
             modelBuilder.Entity("WebInvManagement.Models.ABCGroup", b =>
                 {
                     b.HasOne("WebInvManagement.Models.IMStrategy", "Strategy")
@@ -347,25 +338,6 @@ namespace WebInvManagement.Migrations
                         .HasForeignKey("StrategyId");
 
                     b.Navigation("Strategy");
-                });
-
-            modelBuilder.Entity("WebInvManagement.Models.ABCProductionStock", b =>
-                {
-                    b.HasOne("WebInvManagement.Models.ABCGroup", "ABCGroup")
-                        .WithMany("ABCProductionStocks")
-                        .HasForeignKey("ABCId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WebInvManagement.Models.ProductionStock", "ProductionStock")
-                        .WithMany("ABCProductionStocks")
-                        .HasForeignKey("ProductionStockId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ABCGroup");
-
-                    b.Navigation("ProductionStock");
                 });
 
             modelBuilder.Entity("WebInvManagement.Models.Order", b =>
@@ -379,11 +351,23 @@ namespace WebInvManagement.Migrations
 
             modelBuilder.Entity("WebInvManagement.Models.ProductionStock", b =>
                 {
+                    b.HasOne("WebInvManagement.Models.ABCGroup", "ABCGroup")
+                        .WithMany()
+                        .HasForeignKey("ABCId");
+
                     b.HasOne("WebInvManagement.Models.StockType", "StockType")
                         .WithMany()
                         .HasForeignKey("StockTypeId");
 
+                    b.HasOne("WebInvManagement.Models.XYZGroup", "XYZGroup")
+                        .WithMany()
+                        .HasForeignKey("XYZId");
+
+                    b.Navigation("ABCGroup");
+
                     b.Navigation("StockType");
+
+                    b.Navigation("XYZGroup");
                 });
 
             modelBuilder.Entity("WebInvManagement.Models.Report", b =>
@@ -447,47 +431,14 @@ namespace WebInvManagement.Migrations
                     b.Navigation("Strategy");
                 });
 
-            modelBuilder.Entity("WebInvManagement.Models.XYZProductionStock", b =>
-                {
-                    b.HasOne("WebInvManagement.Models.ProductionStock", "ProductionStock")
-                        .WithMany("XYZProductionStocks")
-                        .HasForeignKey("ProductionStockId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WebInvManagement.Models.XYZGroup", "XYZGroup")
-                        .WithMany("XYZProductionStocks")
-                        .HasForeignKey("XYZId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ProductionStock");
-
-                    b.Navigation("XYZGroup");
-                });
-
-            modelBuilder.Entity("WebInvManagement.Models.ABCGroup", b =>
-                {
-                    b.Navigation("ABCProductionStocks");
-                });
-
             modelBuilder.Entity("WebInvManagement.Models.ProductionStock", b =>
                 {
-                    b.Navigation("ABCProductionStocks");
-
                     b.Navigation("WarehouseProductionStocks");
-
-                    b.Navigation("XYZProductionStocks");
                 });
 
             modelBuilder.Entity("WebInvManagement.Models.Warehouse", b =>
                 {
                     b.Navigation("WarehouseProductionStocks");
-                });
-
-            modelBuilder.Entity("WebInvManagement.Models.XYZGroup", b =>
-                {
-                    b.Navigation("XYZProductionStocks");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,0 +1,27 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Заполнение параметров ProductionStock</title>
+</head>
+<body>
+    <h2>Заполнение параметров ProductionStock</h2>
+    <form action="/ProductionStock/CalculateParameters" method="post">
+        <label for="optimalOrderSize">Оптимальный размер заказа:</label>
+        <input type="text" id="optimalOrderSize" name="optimalOrderSize" required><br><br>
+
+        <label for="safetyStock">Запас безопасности:</label>
+        <input type="text" id="safetyStock" name="safetyStock" required><br><br>
+
+        <label for="expectedConsumptionDuringLeadTime">Ожидаемое потребление во время выполнения заказа:</label>
+        <input type="text" id="expectedConsumptionDuringLeadTime" name="expectedConsumptionDuringLeadTime" required><br><br>
+
+        <label for="reorderPoint">Точка заказа:</label>
+        <input type="text" id="reorderPoint" name="reorderPoint" required><br><br>
+
+        <label for="maximumDesirableStockLevel">Максимальный желаемый уровень запасов:</label>
+        <input type="text" id="maximumDesirableStockLevel" name="maximumDesirableStockLevel" required><br><br>
+
+        <input type="submit" value="Рассчитать параметры">
+    </form>
+</body>
+</html>

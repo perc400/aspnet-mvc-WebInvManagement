@@ -7,76 +7,159 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>@ViewData["Title"]</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         .container {
-            width: 80%;
-            margin: 20px auto;
+            margin-bottom: 20px;
         }
 
         table {
-            width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            width: 100%;
         }
 
         th, td {
-            padding: 10px;
+            border: 1px solid black;
+            padding: 8px;
             text-align: left;
-            border-bottom: 1px;
         }
 
         th {
+            background-color: #f2f2f2;
         }
 
-        tr:hover {
+        canvas {
+            max-width: 600px;
+            margin-top: 20px;
         }
     </style>
+    <!-- Подключаем библиотеку Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+    <h2>Управление запасами</h2>
+
     <div class="container">
-        <h2>Production Stocks</h2>
+        <h3>Расчет параметров системы управления запасами</h3>
+        <form id="stockForm" action="/ProductionStock/Index" method="post">
+            <label for="carryingCostPerOrder">Стоимость заказа:</label>
+            <input type="number" id="carryingCostPerOrder" name="carryingCostPerOrder"><br><br>
+
+            <label for="holdingCostPerUnitPerYear">Стоимость хранения единицы товара в год:</label>
+            <input type="number" id="holdingCostPerUnitPerYear" name="holdingCostPerUnitPerYear"><br><br>
+
+            <label for="annualDemand">Годовой спрос:</label>
+            <input type="number" id="annualDemand" name="annualDemand"><br><br>
+
+            <label for="dailyConsumption">Дневное потребление:</label>
+            <input type="number" id="dailyConsumption" name="dailyConsumption"><br><br>
+
+            <input type="submit" value="Рассчитать">
+        </form>
+    </div>
+
+    <!-- Здесь будет отображаться график -->
+    <div id="stockChartContainer" class="container">
+        <canvas id="stockChart"></canvas>
+    </div>
+
+    <div class="container">
+        <h3>Производственные запасы</h3>
         <table>
-            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Наименование</th>
+                <th>Оптимальный размер заказа</th>
+                <th>Страховой запас</th>
+                <th>Ожидаемое потребление во время выполнения заказа</th>
+                <th>Точка заказа</th>
+                <th>Максимальный желаемый уровень запасов</th>
+            </tr>
+            <!-- Здесь будут отображаться строки с запасами из таблицы ProductionStock -->
+            @foreach (var stock in Model)
+            {
                 <tr>
-                    <th>ID</th>
-                    <th>Quantity</th>
-                    <th>Stock Type</th>
-                    <th>Last Order Date</th>
-                    <th>Last Updated</th>
-                    <th>Lead Time</th>
-                    <th>Max Order Quantity</th>
-                    <th>Min Order Quantity</th>
-                    <th>Notes</th>
-                    <th>Service Level</th>
-                    <th>Status</th>
+                    <td>@stock.Id</td>
+                    <td>@stock.Title</td>
+                    <td>@stock.OptimalOrderSize</td>
+                    <td>@stock.SafetyStock</td>
+                    <td>@stock.ExpectedConsumptionDuringLeadTime</td>
+                    <td>@stock.ReorderPoint</td>
+                    <td>@stock.MaximumDesirableStockLevel</td>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>@item.Id</td>
-                        <td>@item.Quantity</td>
-                        <td>@item.StockTypeId</td>
-                        <td>@item.LastOrderDate</td>
-                        <td>@item.LastUpdated</td>
-                        <td>@item.LeadTime</td>
-                        <td>@item.MaxOrderQuantity</td>
-                        <td>@item.MinOrderQuantity</td>
-                        <td>@item.Notes</td>
-                        <td>@item.ServiceLevel</td>
-                        <td>@item.Status</td>
-                    </tr>
-                }
-            </tbody>
+            }
         </table>
     </div>
+
+    <!-- JavaScript код для создания графика -->
+    <script>
+        // Получаем данные для графика из сервера
+        var stockData = @Html.Raw(Json.Serialize(Model));
+
+        // Получаем ссылки на поля формы
+        var form = document.getElementById("stockForm");
+        var canvas = document.getElementById("stockChart");
+
+        // Обрабатываем событие отправки формы
+        form.addEventListener("submit", function (event) {
+            // Предотвращаем отправку формы по умолчанию
+            event.preventDefault();
+
+            // Отправляем данные формы на сервер
+            var formData = new FormData(form);
+            fetch(form.action, {
+                method: form.method,
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Обновляем данные для графика
+                stockData = data;
+
+                // Перерисовываем график
+                drawChart();
+            });
+        });
+
+        // Функция для создания графика
+        function drawChart() {
+            var labels = [];
+            var reorderPoints = [];
+
+            // Формируем данные для графика
+            stockData.forEach(function(stock) {
+                labels.push(stock.Title);
+                reorderPoints.push(stock.ReorderPoint);
+            });
+
+            // Создаем новый график
+            var ctx = canvas.getContext('2d');
+            var chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Точка заказа',
+                        data: reorderPoints,
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+        }
+
+        // Инициализируем график при загрузке страницы
+        drawChart();
+    </script>
 </body>
 </html>
