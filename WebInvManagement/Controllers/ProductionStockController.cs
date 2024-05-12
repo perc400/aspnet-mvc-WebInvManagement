@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using WebInvManagement.Data;
 using WebInvManagement.Models;
+using System;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebInvManagement.Controllers
 {
@@ -14,90 +16,145 @@ namespace WebInvManagement.Controllers
             this._context = context;
         }
 
-        // Методы для работы с константными рабочими днями
-        private double GetLeadTimeInWorkingDays()
-        {
-            // Здесь можно вернуть константное значение для времени выполнения заказа в рабочих днях
-            return 22;
-        }
-
-        private double GetReorderCycleInWorkingDays()
-        {
-            // Здесь можно вернуть константное значение для периода перезаказа в рабочих днях
-            return 30;
-        }
-
-        // Методы для расчета параметров системы управления запасами
-        private double CalculateOptimalOrderSize(ProductionStock productionStock, double carryingCostPerOrder, double holdingCostPerUnitPerYear, double annualDemand)
-        {
-            // Рассчитываем оптимальный размер заказа по формуле Уилсона
-            double leadTimeInDays = GetLeadTimeInWorkingDays();
-            double reorderCycleInDays = GetReorderCycleInWorkingDays();
-            double optimalOrderSize = Math.Sqrt((2 * carryingCostPerOrder * annualDemand) / (holdingCostPerUnitPerYear * (leadTimeInDays + reorderCycleInDays)));
-            return optimalOrderSize;
-        }
-
-        private double CalculateSafetyStock(double dailyConsumption)
-        {
-            // Рассчитываем запас безопасности
-            double leadTimeInWorkingDays = GetLeadTimeInWorkingDays();
-            double safetyStock = dailyConsumption * leadTimeInWorkingDays;
-            return safetyStock;
-        }
-
-        private double CalculateExpectedConsumptionDuringLeadTime(double dailyConsumption)
-        {
-            // Рассчитываем ожидаемое потребление за время выполнения заказа
-            double leadTimeInDays = GetLeadTimeInWorkingDays();
-            double expectedConsumptionDuringLeadTime = dailyConsumption * leadTimeInDays;
-            return expectedConsumptionDuringLeadTime;
-        }
-
-        private double CalculateReorderPoint(double safetyStock, double expectedConsumptionDuringLeadTime)
-        {
-            // Рассчитываем точку перезаказа
-            double reorderPoint = safetyStock + expectedConsumptionDuringLeadTime;
-            return reorderPoint;
-        }
-
-        private double CalculateMaximumDesirableStockLevel(double optimalOrderSize, double safetyStock)
-        {
-            // Рассчитываем максимальный желательный уровень запасов
-            double maximumDesirableStockLevel = optimalOrderSize + safetyStock;
-            return maximumDesirableStockLevel;
-        }
-
         public IActionResult Index()
         {
-            // Получаем список объектов ProductionStock из базы данных
             List<ProductionStock> stocks = _context.ProductionStocks.ToList();
 
-            // Примеры ваших данных для расчета параметров
-            double carryingCostPerOrder = 100;
-            double holdingCostPerUnitPerYear = 10;
-            double annualDemand = 1000;
-            double dailyConsumption = 5;
-
-            // Проходимся по каждому объекту ProductionStock и расчитываем параметры для него
-            foreach (var stock in stocks)
-            {
-                // Расчет параметров для текущего объекта ProductionStock
-                double optimalOrderSize = CalculateOptimalOrderSize(stock, carryingCostPerOrder, holdingCostPerUnitPerYear, annualDemand);
-                double safetyStock = CalculateSafetyStock(dailyConsumption);
-                double expectedConsumptionDuringLeadTime = CalculateExpectedConsumptionDuringLeadTime(dailyConsumption);
-                double reorderPoint = CalculateReorderPoint(safetyStock, expectedConsumptionDuringLeadTime);
-                double maximumDesirableStockLevel = CalculateMaximumDesirableStockLevel(optimalOrderSize, safetyStock);
-
-                // Присваиваем расчитанные параметры текущему объекту ProductionStock
-                stock.OptimalOrderSize = Convert.ToInt32(optimalOrderSize);
-                stock.SafetyStock = Convert.ToInt32(safetyStock);
-                stock.ExpectedConsumptionDuringLeadTime = Convert.ToInt32(expectedConsumptionDuringLeadTime);
-                stock.ReorderPoint = Convert.ToInt32(reorderPoint);
-                stock.MaximumDesirableStockLevel = Convert.ToInt32(maximumDesirableStockLevel);
-            }
-
-            // Возвращаем представление Index, передавая ему список ProductionStock
             return View(stocks);
         }
+
+        [HttpPost]
+        public IActionResult Calculate(int stockId, double turnover, double leadTime, double leadTimeDelay)
+        {
+            // Получаем объект ProductionStock из базы данных по его Id
+            var stock = _context.ProductionStocks.Find(stockId);
+
+            if (stock != null)
+            {
+                // Рассчитываем основные параметры движения запасов
+                double dailyConsumption = turnover / 250; // Предполагаем 250 рабочих дней в году
+                double safetyStock = dailyConsumption * leadTimeDelay;
+                double expectedConsumptionDuringLeadTime = dailyConsumption * leadTime;
+                double reorderPoint = safetyStock + expectedConsumptionDuringLeadTime;
+                double optimalOrderSize = Math.Sqrt((double)((2 * stock.CarryingCostPerOrder * stock.AnnualDemand) / (stock.HoldingCostPerUnitPerYear * (leadTime + leadTimeDelay))));
+                double maximumDesirableStockLevel = safetyStock + optimalOrderSize;
+
+                // Обновляем поля объекта ProductionStock
+                stock.DailyConsumption = (int)Math.Floor(dailyConsumption);
+                stock.SafetyStock = (int)Math.Floor(safetyStock);
+                stock.ExpectedConsumptionDuringLeadTime = (int)Math.Floor(expectedConsumptionDuringLeadTime);
+                stock.ReorderPoint = (int)Math.Floor(reorderPoint);
+                stock.OptimalOrderSize = (int)Math.Floor(optimalOrderSize);
+                stock.MaximumDesirableStockLevel = (int)Math.Floor(maximumDesirableStockLevel);
+
+                // Сохраняем изменения в базе данных
+                _context.SaveChanges();
+
+                // Возвращаем сообщение об успешном расчете
+                return Ok("Расчет параметров движения запасов выполнен успешно.");
+            }
+
+            // Если объект ProductionStock не найден, возвращаем пользователю ошибку 404
+            return NotFound();
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public IActionResult SimulateStockMovements(int stockId, DateTime startDate, DateTime endDate)
+        {
+            // Получаем объект ProductionStock из базы данных по stockId
+            var stock = _context.ProductionStocks.FirstOrDefault(s => s.Id == stockId);
+
+            if (stock == null || startDate >= endDate)
+            {
+                return BadRequest("Invalid stock or date range");
+            }
+
+            // Устанавливаем начальные значения для компонентов
+            int currentStockLevel = stock.MaximumDesirableStockLevel ?? 0;
+            DateTime orderPlacementTime = startDate; // Время размещения заказа
+            DateTime orderCompletionTime = startDate.AddDays(stock.OptimalOrderSize ?? 0); // Время завершения заказа
+
+            // Списки для хранения данных для графика
+            var datesList = new List<string>();
+            var quantitiesList = new List<int>();
+            var reorderPointsList = new List<int>();
+            var leadTimeList = new List<int>();
+            var leadTimeDelayList = new List<int>();
+            var expectedConsumptionList = new List<int>();
+
+            // Проходим по каждому дню в указанном периоде
+            for (DateTime date = startDate; date <= endDate; date = date.AddDays(1))
+            {
+                // Добавляем текущую дату в список дат
+                datesList.Add(date.ToShortDateString());
+
+                // Проверяем, достиг ли уровень запаса порогового уровня
+                if (currentStockLevel <= stock.ThresholdLevel)
+                {
+                    // В этот день делаем заказ и пополняем запасы
+                    currentStockLevel += stock.OptimalOrderSize ?? 0;
+                    orderPlacementTime = date;
+                    orderCompletionTime = date.AddDays(stock.OptimalOrderSize ?? 0); // Пересчитываем время завершения заказа
+                }
+
+                // Рассчитываем время выполнения заказа и время задержки поставки
+                int leadTime = (int)Math.Ceiling((orderCompletionTime - date).TotalDays);
+                int leadTimeDelay = (int)Math.Ceiling((date - orderPlacementTime).TotalDays);
+
+                // Рассчитываем ожидаемое потребление за время выполнения заказа
+                int expectedConsumptionDuringLeadTime = stock.ExpectedConsumptionDuringLeadTime ?? 0;
+
+                // Добавляем текущие значения компонентов в соответствующие списки
+                quantitiesList.Add(currentStockLevel);
+                reorderPointsList.Add(stock.ThresholdLevel ?? 0);
+                leadTimeList.Add(leadTime);
+                leadTimeDelayList.Add(leadTimeDelay);
+                expectedConsumptionList.Add(expectedConsumptionDuringLeadTime);
+
+                // Уменьшаем количество товара на складе на величину ожидаемого потребления
+                currentStockLevel -= expectedConsumptionDuringLeadTime;
+
+                // Если уровень запаса стал меньше нуля, это означает, что был превышен гарантийный запас
+                if (currentStockLevel < 0)
+                {
+                    // Корректируем уровень запаса до нуля
+                    currentStockLevel = 0;
+                }
+
+                // Создаем запись о движении товара
+                var stockMovement = new StockMovement
+                {
+                    Date = date,
+                    Quantity = -expectedConsumptionDuringLeadTime // Отрицательное значение для отражения потребления товара
+                };
+
+                // Связываем запись StockMovement с соответствующим объектом ProductionStock
+                var stockMovementProductionStock = new StockMovementProductionStock
+                {
+                    StockMovement = stockMovement,
+                    ProductionStock = stock
+                };
+
+                // Добавляем записи в контекст базы данных
+                _context.StockMovements.Add(stockMovement);
+                _context.StockMovementProductionStocks.Add(stockMovementProductionStock);
+            }
+
+            // Сохраняем изменения в базе данных
+            _context.SaveChanges();
+
+            // Возвращаем данные в формате JSON
+            return Json(new
+            {
+                dates = datesList,
+                quantities = quantitiesList,
+                reorderPoints = reorderPointsList,
+                leadTime = leadTimeList,
+                leadTimeDelay = leadTimeDelayList,
+                expectedConsumption = expectedConsumptionList
+            });
+        }
+
     }
 }

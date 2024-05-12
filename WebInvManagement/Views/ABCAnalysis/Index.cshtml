@@ -1,0 +1,133 @@
+﻿@model IEnumerable<ProductionStock>
+
+@{
+    ViewData["Title"] = "Результаты анализа";
+}
+
+<style>
+    body {
+        background-color: #0D1F2D;
+        color: #FFFFFF;
+    }
+
+    .table th {
+        color: #FF3D3D;
+    }
+
+    .table tbody tr:hover {
+        background-color: #FF3D3D;
+        cursor: pointer;
+    }
+
+    .table {
+        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.5);
+    }
+
+    .table {
+        border-radius: 10px;
+    }
+
+    .main-container {
+        background-color: #1d2e3d;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 20px;
+    }
+
+    .table td {
+        border: 1px solid #FFFFFF;
+        padding: 8px;
+    }
+
+    .table td.value {
+        color: #7FFFD4;
+    }
+</style>
+
+<div class="main-container">
+    <h1>@ViewData["Title"]</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID Запаса</th>
+                <th>Наименование</th>
+                <th>ABC-группа</th>
+                <th>Данные</th>
+                <th>Кол-во операций</th>
+                <th>Стоимость операций</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var stock in Model)
+            {
+                <tr>
+                    <td class="value">@stock.Id</td>
+                    <td class="value">@stock.Title</td>
+                    <td class="value">
+                        @{
+                            // Найдем соответствующую группу ABC для текущего товара
+                            var abcGroup = stock.ABCProductionStocks.FirstOrDefault()?.ABCGroup?.Group ?? "Unknown";
+                        }
+                        @abcGroup
+                    </td>
+                    @{
+                        // Получаем операции для текущего товара
+                        var operations = stock.OperationProductionStocks.Select(ops => ops.Operation);
+                        // Выводим информацию о каждой операции
+                        foreach (var operation in operations)
+                        {
+                            <td class="value">@operation.Date</td>
+                            <td class="value">@operation.Quantity</td>
+                            <td class="value">@operation.Price</td>
+                        }
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div class="chart-container">
+        <canvas id="lorenzChart"></canvas>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        var ctx = document.getElementById('lorenzChart').getContext('2d');
+        var turnovers = @Html.Raw(Json.Serialize(ViewBag.Turnovers));
+        var cumulativeTurnovers = @Html.Raw(Json.Serialize(ViewBag.CumulativeTurnovers));
+
+        var lorenzChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: cumulativeTurnovers,
+                datasets: [{
+                    label: 'Кривая Лоренца',
+                    borderColor: 'rgb(255, 99, 132)',
+                    data: turnovers,
+                    fill: false
+                }]
+            },
+            options: {
+                scales: {
+                    xAxes: [{
+                        type: 'category', // Изменение типа шкалы X на категориальный
+                        labels: cumulativeTurnovers,
+                        position: 'bottom',
+                        ticks: {
+                            fontColor: 'white' // Цвет меток оси X
+                        }
+                    }],
+                    yAxes: [{
+                        type: 'linear', // Установка типа шкалы Y на линейный
+                        ticks: {
+                            fontColor: 'white' // Цвет меток оси Y
+                        }
+                    }]
+                }
+            }
+        });
+    </script>
+}

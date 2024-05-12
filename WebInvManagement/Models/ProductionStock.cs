@@ -32,5 +32,15 @@ namespace WebInvManagement.Models
         public int? ExpectedConsumptionDuringLeadTime { get; set; } // ожидаемое потребление товара на складе за время выполнения заказа
         public int? ReorderPoint { get; set; } // пороговый уровень запасов на складе
         public int? MaximumDesirableStockLevel { get; set; } // максимальный желательный уровень запасов на складе
+        public double? CarryingCostPerOrder { get; set; } // стоимость заказа
+        public double? HoldingCostPerUnitPerYear { get; set; } // стоимость хранения единицы товара в год
+        public double? AnnualDemand { get; set; } // годовой спрос
+        public int? Cost { get; set; } // стоимость
+
+        // Many-to-many [StockMovement has ProductionStock]
+        public ICollection<StockMovementProductionStock>? StockMovementProductionStocks { get; set; }
+
+        // Many-to-many [Operation has ProductionStock]
+        public ICollection<OperationProductionStock>? OperationProductionStocks { get; set; }
     }
 }

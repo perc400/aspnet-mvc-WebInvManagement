@@ -59,6 +59,38 @@ namespace WebInvManagement.Data
                 .HasOne(wp => wp.ProductionStock)
                 .WithMany(p => p.XYZProductionStocks)
                 .HasForeignKey(wp => wp.ProductionStockId);
+
+            // many to many [StockMovement has ProductionStock]
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<StockMovementProductionStock>()
+                .HasKey(wp => new { wp.StockMovementId, wp.ProductionStockId });
+
+            modelBuilder.Entity<StockMovementProductionStock>()
+                .HasOne(wp => wp.StockMovement)
+                .WithMany(w => w.StockMovementProductionStocks)
+                .HasForeignKey(wp => wp.StockMovementId);
+
+            modelBuilder.Entity<StockMovementProductionStock>()
+                .HasOne(wp => wp.ProductionStock)
+                .WithMany(p => p.StockMovementProductionStocks)
+                .HasForeignKey(wp => wp.ProductionStockId);
+
+            // many to many [Operation has ProductionStock]
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<OperationProductionStock>()
+                .HasKey(wp => new { wp.OperationId, wp.ProductionStockId });
+
+            modelBuilder.Entity<OperationProductionStock>()
+                .HasOne(wp => wp.Operation)
+                .WithMany(w => w.OperationProductionStocks)
+                .HasForeignKey(wp => wp.OperationId);
+
+            modelBuilder.Entity<OperationProductionStock>()
+                .HasOne(wp => wp.ProductionStock)
+                .WithMany(p => p.OperationProductionStocks)
+                .HasForeignKey(wp => wp.ProductionStockId);
         }
 
         public DbSet<User> Users { get; set; }
@@ -69,8 +101,10 @@ namespace WebInvManagement.Data
         public DbSet<WarehouseProductionStock> WarehouseProductionStocks { get; set; }
         public DbSet<ABCProductionStock> ABCProductionStocks { get; set; }
         public DbSet<XYZProductionStock> XYZProductionStocks { get; set; }
+        public DbSet<StockMovementProductionStock> StockMovementProductionStocks { get; set; }
         public DbSet<ABCGroup> ABCGroups { get; set; }
         public DbSet<XYZGroup> XYZGroups { get; set; }
+        public DbSet<StockMovement> StockMovements { get; set; }
         public DbSet<IMStrategy> IMStrategys { get; set; }
         public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<Order> Orders { get; set; }

@@ -4,44 +4,87 @@
     ViewData["Title"] = "Home Page";
 }
 
+<style>
+    /* Задний фон */
+    body {
+        background-color: #0D1F2D;
+        color: #FFFFFF;
+    }
+
+    /* Цвет главного контейнера */
+    .main-container {
+        background-color: #1d2e3d;
+        color: #FFFFFF;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 10px;
+    }
+
+    /* Цвет контейнеров с описанием */
+    .col-md-4 {
+        background-color: #354656;
+        margin-bottom: 20px;
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    /* Стили для кнопок */
+    .btn-secondary {
+        background-color: #FF3D3D;
+        border-color: #354656;
+        color: #FFFFFF;
+        margin-top: 20px;
+    }
+
+    .btn-secondary:hover {
+        background-color: #4A9D9C;
+        border-color: #1d2e3d;
+        color: #FFFFFF;
+    }
+</style>
+
 <!-- Main jumbotron for a primary marketing message or call to action -->
 <div class="jumbotron">
     <div class="container">
-        <h1 class="display-3">Inventory Management</h1>
-        <p>This is a template for a simple marketing or informational website. It includes a large callout called a jumbotron and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
+        <h1 class="display-3">Управление производственными запасами</h1>
+        <p>
+            Материальные запасы, или продукция, ожидающая потребления, составляют значительную часть оборотных средств предприятия. Поэтому нерациональное управление запасами, например, создание необоснованно большого количества товарных запасов в торговой деятельности приводит к снижению уровня оборачиваемости денежного капитала, вложенного в создание запасов,а также к увлечению затрат на их хранение и, наоборот, в случае недостаточный объем запасов сырья в производстве может сорвать выполнение производственной программы или привести к ее изменению.
+        </p>
     </div>
 </div>
 
-<div class="container">
-    <!-- Example row of columns -->
-    <div class="row">
-        <div class="col-md-4">
-            <h2>ABC Analysis</h2>
-            <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-            <p><a class="btn btn-secondary" href="#" role="button">View details &raquo;</a></p>
+<div class="main-container">
+    <div class="container">
+        <!-- Example row of columns -->
+        <div class="row">
+            <div class="col-md-4">
+                <h2 style="color:#4A9D9C">ABC-анализ</h2>
+                <p>Идея АВС-анализа состоит в том, чтобы из всего множества однотипных объектов, к примеру, ассортимента товаров, выделить наиболее значимые с точки зрения обозначенной цели.</p>
+                <a class="btn btn-secondary" href="ABCAnalysis" role="button">Детали &raquo;</a>
+            </div>
+            <div class="col-md-4">
+                <h2 style="color:#4A9D9C">ABC-XYZ анализ</h2>
+                <p>Метод, основанный на более сложном рассмотрении характеристик спроса на товары, предполагает первоначально ABC, а затем XYZ-анализ. Последний предусматривает разбиение всей номенклатуры товаров на три группы X, Y и Z в зависимости от прогнозируемости спроса (потребления) на них.</p>
+                <a class="btn btn-secondary" href="ABCXYZAnalysis" role="button">Детали &raquo;</a>
+            </div>
+            <div class="col-md-4">
+                <h2 style="color:#4A9D9C">Производственные запасы</h2>
+                <p>Материальные запасы являются ключевым понятием логистики. Материальные запасы – это находящиеся на разных стадиях производства и обращения продукция производст-венно-технического назначения, изделия народного потребления и другие товары, ожидающие вступления в процесс личного или производственного потребления.</p>
+                <a class="btn btn-secondary" href="ProductionStock" role="button">Детали &raquo;</a>
+            </div>
+            <div class="col-md-4">
+                <h2 style="color:#4A9D9C">Отчеты</h2>
+                <p>Раздел, в котором можно получить отчет по работе системы с определенным наименованием запаса в формате PDF.</p>
+                <a class="btn btn-secondary" href="ABCAnalysis/Report" role="button">Детали &raquo;</a>
+            </div>
+            <div class="col-md-4">
+                <h2 style="color:#4A9D9C">Пользователи</h2>
+                <p>Список пользователей системы.</p>
+                <a class="btn btn-secondary" href="User" role="button">Детали &raquo;</a>
+            </div>
         </div>
-        <div class="col-md-4">
-            <h2>XYZ Analysis</h2>
-            <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-            <p><a class="btn btn-secondary" href="#" role="button">View details &raquo;</a></p>
-        </div>
-        <div class="col-md-4">
-            <h2>Production Stocks</h2>
-            <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-            <p><a class="btn btn-secondary" href="#" role="button">View details &raquo;</a></p>
-        </div>
-        <div class="col-md-4">
-            <h2>Reports</h2>
-            <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-            <p><a class="btn btn-secondary" href="#" role="button">View details &raquo;</a></p>
-        </div>
-        <div class="col-md-4">
-            <h2>Users</h2>
-            <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-            <p><a class="btn btn-secondary" href="#" role="button">View details &raquo;</a></p>
-        </div>
-    </div>
 
-    <hr>
+        <hr>
 
-</div> <!-- /container -->
+    </div> <!-- /container -->
+</div>

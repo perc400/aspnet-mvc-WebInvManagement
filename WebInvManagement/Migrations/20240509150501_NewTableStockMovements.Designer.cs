@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebInvManagement.Data;
 
@@ -11,9 +12,10 @@ using WebInvManagement.Data;
 namespace WebInvManagement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240509150501_NewTableStockMovements")]
+    partial class NewTableStockMovements
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -80,43 +82,6 @@ namespace WebInvManagement.Migrations
                     b.ToTable("IMStrategys");
                 });
 
-            modelBuilder.Entity("WebInvManagement.Models.Operation", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<DateTime?>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("Price")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("Quantity")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Operation");
-                });
-
-            modelBuilder.Entity("WebInvManagement.Models.OperationProductionStock", b =>
-                {
-                    b.Property<int>("OperationId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProductionStockId")
-                        .HasColumnType("int");
-
-                    b.HasKey("OperationId", "ProductionStockId");
-
-                    b.HasIndex("ProductionStockId");
-
-                    b.ToTable("OperationProductionStock");
-                });
-
             modelBuilder.Entity("WebInvManagement.Models.Order", b =>
                 {
                     b.Property<int?>("Id")
@@ -149,23 +114,11 @@ namespace WebInvManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<double?>("AnnualDemand")
-                        .HasColumnType("float");
-
-                    b.Property<double?>("CarryingCostPerOrder")
-                        .HasColumnType("float");
-
-                    b.Property<int?>("Cost")
-                        .HasColumnType("int");
-
                     b.Property<int?>("DailyConsumption")
                         .HasColumnType("int");
 
                     b.Property<int?>("ExpectedConsumptionDuringLeadTime")
                         .HasColumnType("int");
-
-                    b.Property<double?>("HoldingCostPerUnitPerYear")
-                        .HasColumnType("float");
 
                     b.Property<int?>("MaxDesiredLevel")
                         .HasColumnType("int");
@@ -451,25 +404,6 @@ namespace WebInvManagement.Migrations
                     b.Navigation("ProductionStock");
                 });
 
-            modelBuilder.Entity("WebInvManagement.Models.OperationProductionStock", b =>
-                {
-                    b.HasOne("WebInvManagement.Models.Operation", "Operation")
-                        .WithMany("OperationProductionStocks")
-                        .HasForeignKey("OperationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WebInvManagement.Models.ProductionStock", "ProductionStock")
-                        .WithMany("OperationProductionStocks")
-                        .HasForeignKey("ProductionStockId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Operation");
-
-                    b.Navigation("ProductionStock");
-                });
-
             modelBuilder.Entity("WebInvManagement.Models.Order", b =>
                 {
                     b.HasOne("WebInvManagement.Models.StockType", "StockType")
@@ -592,16 +526,9 @@ namespace WebInvManagement.Migrations
                     b.Navigation("ABCProductionStocks");
                 });
 
-            modelBuilder.Entity("WebInvManagement.Models.Operation", b =>
-                {
-                    b.Navigation("OperationProductionStocks");
-                });
-
             modelBuilder.Entity("WebInvManagement.Models.ProductionStock", b =>
                 {
                     b.Navigation("ABCProductionStocks");
-
-                    b.Navigation("OperationProductionStocks");
 
                     b.Navigation("StockMovementProductionStocks");
 

@@ -7,159 +7,216 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>@ViewData["Title"]</title>
     <style>
-        .container {
+        /* Задний фон страницы */
+        body {
+            background-color: #0D1F2D;
+            color: #FFFFFF; /* Цвет текста */
+        }
+
+        /* Стили для контейнера запасов */
+        .stocks-container {
             margin-bottom: 20px;
         }
 
-        table {
-            border-collapse: collapse;
-            width: 100%;
+        /* Стили для каждого запаса */
+        .stock-container {
+            background-color: #354656; /* Цвет контейнера с товаром */
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
         }
 
-        th, td {
-            border: 1px solid black;
-            padding: 8px;
-            text-align: left;
+        /* Стили для кнопок */
+        .button-container {
+            margin-top: 10px;
+            text-align: center;
         }
 
-        th {
-            background-color: #f2f2f2;
+        .button-container button {
+            margin-right: 10px;
+            background-color: #4A9D9C; /* Цвет кнопок */
+            color: #FFFFFF; /* Цвет текста на кнопках */
+            border: none;
+            border-radius: 5px;
+            padding: 8px 12px;
+            cursor: pointer;
         }
 
-        canvas {
-            max-width: 600px;
-            margin-top: 20px;
+        .button-container button:hover {
+            background-color: #AFFFFF; /* Цвет кнопок при наведении */
+        }
+
+        /* Стили для формы расчета */
+        .calculation-form {
+            margin-top: 10px;
+        }
+
+        /* Стили для графика */
+        .chart-container {
+            margin-top: 10px;
+        }
+
+        .main-container {
+            background-color: #1d2e3d; /* Цвет контейнера с товаром */
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 10px;
         }
     </style>
-    <!-- Подключаем библиотеку Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <h2>Управление запасами</h2>
-
-    <div class="container">
-        <h3>Расчет параметров системы управления запасами</h3>
-        <form id="stockForm" action="/ProductionStock/Index" method="post">
-            <label for="carryingCostPerOrder">Стоимость заказа:</label>
-            <input type="number" id="carryingCostPerOrder" name="carryingCostPerOrder"><br><br>
-
-            <label for="holdingCostPerUnitPerYear">Стоимость хранения единицы товара в год:</label>
-            <input type="number" id="holdingCostPerUnitPerYear" name="holdingCostPerUnitPerYear"><br><br>
-
-            <label for="annualDemand">Годовой спрос:</label>
-            <input type="number" id="annualDemand" name="annualDemand"><br><br>
-
-            <label for="dailyConsumption">Дневное потребление:</label>
-            <input type="number" id="dailyConsumption" name="dailyConsumption"><br><br>
-
-            <input type="submit" value="Рассчитать">
-        </form>
-    </div>
-
-    <!-- Здесь будет отображаться график -->
-    <div id="stockChartContainer" class="container">
-        <canvas id="stockChart"></canvas>
-    </div>
-
-    <div class="container">
-        <h3>Производственные запасы</h3>
-        <table>
-            <tr>
-                <th>ID</th>
-                <th>Наименование</th>
-                <th>Оптимальный размер заказа</th>
-                <th>Страховой запас</th>
-                <th>Ожидаемое потребление во время выполнения заказа</th>
-                <th>Точка заказа</th>
-                <th>Максимальный желаемый уровень запасов</th>
-            </tr>
-            <!-- Здесь будут отображаться строки с запасами из таблицы ProductionStock -->
+    <!-- Контейнер для отображения запасов -->
+    <div class="main-container">
+        <div class="stocks-container">
             @foreach (var stock in Model)
             {
-                <tr>
-                    <td>@stock.Id</td>
-                    <td>@stock.Title</td>
-                    <td>@stock.OptimalOrderSize</td>
-                    <td>@stock.SafetyStock</td>
-                    <td>@stock.ExpectedConsumptionDuringLeadTime</td>
-                    <td>@stock.ReorderPoint</td>
-                    <td>@stock.MaximumDesirableStockLevel</td>
-                </tr>
+                <div class="stock-container">
+
+                    <strong>ID:</strong> @stock.Id<br />
+                    <strong>Наименование:</strong> @stock.Title<br />
+                    <strong>Оптимальный размер заказа:</strong> <span style="color: #FF3D3D">@stock.OptimalOrderSize</span><br />
+                    <strong>Страховой запас:</strong> <span style="color: #FF3D3D">@stock.SafetyStock</span><br />
+                    <strong>Ожидаемое потребление во время выполнения заказа:</strong> <span style="color: #FF3D3D">@stock.ExpectedConsumptionDuringLeadTime</span><br />
+                    <strong>Точка заказа:</strong> <span style="color: #FF3D3D">@stock.ReorderPoint</span><br />
+                    <strong>Максимальный желаемый уровень запасов:</strong> <span style="color: #FF3D3D">@stock.MaximumDesirableStockLevel</span><br />
+
+                
+                    <div class="button-container">
+                        <button class="calculate-button" data-stock-id="@stock.Id">Рассчитать</button>
+                    </div>
+
+                    <div class="button-container">
+                        <!-- Измененный обработчик кнопки "Показать график" -->
+                        <button class="show-chart-button" data-stock-id="@stock.Id">Показать график</button>
+                    </div>
+
+                    <!-- Место для отображения графика -->
+                    <div class="chart-container" id="chart-container-@stock.Id" style="display: none;">
+                        <div id="chart-@stock.Id"></div>
+                    </div>
+
+                    <form action="/ProductionStock/Calculate" method="post" class="calculation-form" data-stock-id="@stock.Id" style="display: none;">
+                        <input type="hidden" name="stockId" value="@stock.Id">
+
+                        <label for="turnover">Объем оборота за определенный период:</label>
+                        <input type="number" name="turnover" required><br><br>
+
+                        <label for="leadTime">Время выполнения заказа (дни):</label>
+                        <input type="number" name="leadTime" required><br><br>
+
+                        <label for="leadTimeDelay">Время задержки поставки (дни):</label>
+                        <input type="number" name="leadTimeDelay" required><br><br>
+
+                        <input type="submit" value="Рассчитать">
+                    </form>
+                
+                </div>
             }
-        </table>
+        </div>
     </div>
 
-    <!-- JavaScript код для создания графика -->
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.highcharts.com/themes/high-contrast-dark.js"></script>
     <script>
-        // Получаем данные для графика из сервера
-        var stockData = @Html.Raw(Json.Serialize(Model));
+        // Обработчик нажатия кнопки "Показать график"
+        $('.show-chart-button').click(function () {
+            var stockId = $(this).data('stock-id');
 
-        // Получаем ссылки на поля формы
-        var form = document.getElementById("stockForm");
-        var canvas = document.getElementById("stockChart");
+            // Показываем контейнер для графика
+            $('#chart-container-' + stockId).show();
 
-        // Обрабатываем событие отправки формы
-        form.addEventListener("submit", function (event) {
-            // Предотвращаем отправку формы по умолчанию
-            event.preventDefault();
-
-            // Отправляем данные формы на сервер
-            var formData = new FormData(form);
-            fetch(form.action, {
-                method: form.method,
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Обновляем данные для графика
-                stockData = data;
-
-                // Перерисовываем график
-                drawChart();
+            // Отправляем AJAX-запрос на сервер для симуляции движения запасов и получения данных для графика
+            $.ajax({
+                url: '/ProductionStock/SimulateStockMovements',
+                method: 'POST',
+                data: { stockId: stockId, startDate: '2024-05-01', endDate: '2024-12-01' },
+                success: function (response) {
+                    // Если симуляция выполнена успешно и получены данные для графика
+                    if (response && response.dates && response.quantities) {
+                        // Построение графика с помощью Highcharts
+                        Highcharts.chart('chart-container-' + stockId, {
+                            title: {
+                                text: 'График движения запасов'
+                            },
+                            xAxis: {
+                                categories: response.dates
+                            },
+                            yAxis: {
+                                title: {
+                                    text: 'Количество товара'
+                                }
+                            },
+                            series: [{
+                                name: 'Запас товара',
+                                data: response.quantities
+                            }, {
+                                name: 'Пороговый уровень',
+                                data: response.reorderPoints,
+                                color: 'red'
+                            }, {
+                                name: 'Время выполнения заказа',
+                                data: response.leadTime,
+                                color: 'green'
+                            }, {
+                                name: 'Время задержки поставки',
+                                data: response.leadTimeDelay,
+                                color: 'orange'
+                            }, {
+                                name: 'Ожидаемое потребление',
+                                data: response.expectedConsumption,
+                                color: 'blue'
+                            }]
+                        });
+                    } else {
+                        console.error('Ошибка при получении данных для графика');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Произошла ошибка при симуляции: ' + error);
+                }
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            // Показать форму для расчета при нажатии на кнопку "Рассчитать"
+            $(".calculate-button").click(function () {
+                var stockId = $(this).data('stock-id');
+                $(".calculation-form[data-stock-id='" + stockId + "']").show();
             });
         });
 
-        // Функция для создания графика
-        function drawChart() {
-            var labels = [];
-            var reorderPoints = [];
+        $(document).ready(function () {
+            // Обработчик события отправки формы
+            $(".calculation-form").submit(function (event) {
+                // Отменяем стандартное действие отправки формы
+                event.preventDefault();
 
-            // Формируем данные для графика
-            stockData.forEach(function(stock) {
-                labels.push(stock.Title);
-                reorderPoints.push(stock.ReorderPoint);
+                // Получаем данные из формы
+                var stockId = $(this).find('input[name="stockId"]').val();
+                var turnover = $(this).find('input[name="turnover"]').val();
+                var leadTime = $(this).find('input[name="leadTime"]').val();
+                var leadTimeDelay = $(this).find('input[name="leadTimeDelay"]').val();
+
+                // Отправляем данные на сервер
+                $.post("/ProductionStock/Calculate", {
+                    stockId: stockId,
+                    turnover: turnover,
+                    leadTime: leadTime,
+                    leadTimeDelay: leadTimeDelay
+                })
+                    .done(function (data) {
+                        // Обработка успешного ответа сервера
+                        console.log("Calculation successful");
+                    })
+                    .fail(function () {
+                        // Обработка ошибки запроса
+                        console.error("Error during calculation");
+                    });
             });
-
-            // Создаем новый график
-            var ctx = canvas.getContext('2d');
-            var chart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Точка заказа',
-                        data: reorderPoints,
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero: true
-                            }
-                        }]
-                    }
-                }
-            });
-        }
-
-        // Инициализируем график при загрузке страницы
-        drawChart();
-    </script>
+        });
+    </script>    
 </body>
 </html>

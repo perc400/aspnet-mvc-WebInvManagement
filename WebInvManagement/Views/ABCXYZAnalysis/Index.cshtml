@@ -1,0 +1,71 @@
+﻿@{
+    ViewData["Title"] = "Результаты анализа";
+}
+
+<style>
+    body {
+        background-color: #0D1F2D;
+        color: #FFFFFF;
+    }
+
+    .table th {
+        color: #FF3D3D;
+    }
+
+    .table tbody tr:hover {
+        background-color: #FF3D3D;
+        cursor: pointer;
+    }
+
+    .table {
+        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.5);
+    }
+
+    .table {
+        border-radius: 10px;
+    }
+
+    .main-container {
+        background-color: #1d2e3d;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 20px;
+    }
+
+    .table td {
+        border: 1px solid #FFFFFF;
+        padding: 8px;
+    }
+
+        .table td.value {
+            color: #7FFFD4;
+        }
+</style>
+
+<div class="main-container">
+    <h1>@ViewData["Title"]</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID Запаса</th>
+                <th>Наименование</th>
+                <th>Группа</th>
+                <th>Данные</th>
+                <th>Кол-во операций</th>
+                <th>Стоимость операций</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="value">1003</td>
+                <td class="value">Product 1</td>
+                <td class="value">AX</td>
+                <td class="value">24.05.2024 00:00:00</td>
+                <td class="value">14</td>
+                <td class="value">312000</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="chart-container"></div>
+</div>

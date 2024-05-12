@@ -1,0 +1,69 @@
+﻿@model IEnumerable<ProductionStock>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Отчет</title>
+    <style>
+        body {
+            background-color: #0D1F2D;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            background-color: #1d2e3d;
+            padding: 20px;
+            margin: 50px auto;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .dropdown {
+            color: #FF3D3D;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #FF3D3D;
+            border-radius: 5px;
+            background-color: transparent;
+            width: 200px;
+            margin-right: 10px;
+        }
+
+        .btn {
+            background-color: #66c6ba;
+            color: #FFFFFF;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #7FFFD4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form id="reportForm" method="post" action="/ABCAnalysis/GenerateReport">
+            <select id="stockId" name="stockId" class="dropdown">
+                @foreach (var stock in Model)
+                {
+                    <option value="@stock.Id">@stock.Title</option>
+                }
+            </select>
+            <button id="generateReport" type="submit" class="btn">Сформировать отчет</button>
+        </form>
+    </div>
+
+    <div class="container">
+        <iframe src="/reports/Report.pdf" style="width:100%; height:600px;" frameborder="0"></iframe>
+    </div>
+</body>
+</html>
