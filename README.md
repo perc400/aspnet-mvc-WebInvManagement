@@ -1,5 +1,5 @@
 Home
-![Alt text](Images/Home"Home")
+![Alt text](https://github.com/83id2sw/aspnet-mvc-WebInvManagement/blob/master/Images/ABC.png"Home")
 Stocks
 ![Alt text](Images/Stocks"Stocks")
 ABC-analysis
