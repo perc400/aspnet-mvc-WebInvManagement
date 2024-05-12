@@ -1,12 +1,12 @@
 Home
-![Alt text](url"Home")
+![Alt text](Images/Home"Home")
 Stocks
-![Alt text](url"Stocks")
+![Alt text](Images/Stocks"Stocks")
 ABC-analysis
-![Alt text](url"ABC-analysis")
+![Alt text](Images/ABC"ABC-analysis")
 ABCXYZ-analysis
-![Alt text](url"ABCXYZ-analysis")
+![Alt text](Images/ABCXYZ"ABCXYZ-analysis")
 Reports
-![Alt text](url"Reports")
+![Alt text](Images/Report"Reports")
 Users
-![Alt text](url"Users")
+![Alt text](Images/User"Users")
