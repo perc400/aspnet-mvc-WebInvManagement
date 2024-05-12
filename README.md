@@ -1,12 +1,12 @@
 Home
-![](https://github.com/83id2sw/aspnet-mvc-WebInvManagement/blob/master/Images/ABC.png)
+![](https://github.com/83id2sw/aspnet-mvc-WebInvManagement/blob/master/Images/Home.png)
 Stocks
-![Alt text](Images/Stocks"Stocks")
+![](https://github.com/83id2sw/aspnet-mvc-WebInvManagement/blob/master/Images/Stocks.png)
 ABC-analysis
-![Alt text](Images/ABC"ABC-analysis")
+![](https://github.com/83id2sw/aspnet-mvc-WebInvManagement/blob/master/Images/ABC.png)
 ABCXYZ-analysis
-![Alt text](Images/ABCXYZ"ABCXYZ-analysis")
+![](https://github.com/83id2sw/aspnet-mvc-WebInvManagement/blob/master/Images/ABCXYZ.png)
 Reports
-![Alt text](Images/Report"Reports")
+![](https://github.com/83id2sw/aspnet-mvc-WebInvManagement/blob/master/Images/Report.png)
 Users
-![Alt text](Images/User"Users")
+![](https://github.com/83id2sw/aspnet-mvc-WebInvManagement/blob/master/Images/User.png)
