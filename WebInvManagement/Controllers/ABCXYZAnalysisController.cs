@@ -1,26 +1,23 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using WebInvManagement.Data;
 using WebInvManagement.Models;
 
 namespace WebInvManagement.Controllers
 {
-    public class UserController : Controller
+    public class ABCXYZAnalysisController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public UserController(ApplicationDbContext context)
+        public ABCXYZAnalysisController(ApplicationDbContext context)
         {
             this._context = context;
         }
 
         public IActionResult Index()
         {
-            var users = _context.Users
-                .Include(u => u.Role)
-                .ToList();
+            List<ProductionStock> stocks = _context.ProductionStocks.ToList();
 
-            return View(users);
+            return View(stocks);
         }
     }
 }

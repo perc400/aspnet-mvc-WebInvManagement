@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using WebInvManagement.Models;
 
 namespace WebInvManagement.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<AppUser>
+    public class ApplicationDbContext : DbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -94,6 +93,8 @@ namespace WebInvManagement.Data
                 .HasForeignKey(wp => wp.ProductionStockId);
         }
 
+        public DbSet<User> Users { get; set; }
+        public DbSet<UserRole> Roles { get; set; }
         public DbSet<StockType> StockTypes { get; set; }
         public DbSet<ProductionStock> ProductionStocks { get; set; }
         public DbSet<Warehouse> Warehouses { get; set; }
@@ -108,5 +109,6 @@ namespace WebInvManagement.Data
         public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<Report> Reports { get; set; }
+
     }
 }

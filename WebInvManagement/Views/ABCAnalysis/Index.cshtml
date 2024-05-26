@@ -53,7 +53,7 @@
                 <th>ID Запаса</th>
                 <th>Наименование</th>
                 <th>ABC-группа</th>
-                <th>Дата последней операции</th>
+                <th>Данные</th>
                 <th>Кол-во операций</th>
                 <th>Стоимость операций</th>
             </tr>
@@ -96,52 +96,34 @@
 
     <script>
         var ctx = document.getElementById('lorenzChart').getContext('2d');
-        var cumulativePercentages = @Html.Raw(Json.Serialize(ViewBag.CumulativePercentages));
-        var stockLabels = @Html.Raw(Json.Serialize(ViewBag.StockLabels));
-        var nA = @Html.Raw(Json.Serialize(ViewBag.NA));
-        var nB = @Html.Raw(Json.Serialize(ViewBag.NB));
+        var turnovers = @Html.Raw(Json.Serialize(ViewBag.Turnovers));
+        var cumulativeTurnovers = @Html.Raw(Json.Serialize(ViewBag.CumulativeTurnovers));
 
         var lorenzChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: stockLabels,
+                labels: cumulativeTurnovers,
                 datasets: [{
                     label: 'Кривая Лоренца',
                     borderColor: 'rgb(255, 99, 132)',
-                    data: cumulativePercentages,
-                    fill: false,
-                    pointRadius: 3,
-                    pointHoverRadius: 5,
-                    pointBackgroundColor: function (context) {
-                        var index = context.dataIndex;
-                        if (index === nA || index === nB) {
-                            return 'green'; // Цвет точек для nA и nB
-                        }
-                        return 'rgba(255, 99, 132, 0.5)'; // Цвет остальных точек
-                    },
-                    pointBorderColor: function (context) {
-                        var index = context.dataIndex;
-                        if (index === nA || index === nB) {
-                            return 'yellow'; // Цвет границы точек для nA и nB
-                        }
-                        return 'rgba(255, 99, 132, 0.5)'; // Цвет границы остальных точек
-                    }
+                    data: turnovers,
+                    fill: false
                 }]
             },
             options: {
                 scales: {
                     xAxes: [{
-                        type: 'category',
-                        labels: stockLabels,
+                        type: 'category', // Изменение типа шкалы X на категориальный
+                        labels: cumulativeTurnovers,
                         position: 'bottom',
                         ticks: {
-                            fontColor: 'white'
+                            fontColor: 'white' // Цвет меток оси X
                         }
                     }],
                     yAxes: [{
-                        type: 'linear',
+                        type: 'linear', // Установка типа шкалы Y на линейный
                         ticks: {
-                            fontColor: 'white'
+                            fontColor: 'white' // Цвет меток оси Y
                         }
                     }]
                 }

@@ -17,9 +17,5 @@ namespace WebInvManagement.Models
         [ForeignKey("Order")]
         public int? OrderId { get; set; }
         public Order? Order { get; set; }
-
-        [ForeignKey("AppUser")]
-        public string? AppUserId { get; set; }
-        public AppUser? AppUser { get; set; }
     }
 }
