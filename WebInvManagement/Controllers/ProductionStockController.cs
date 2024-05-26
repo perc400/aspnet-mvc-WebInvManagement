@@ -144,6 +144,65 @@ namespace WebInvManagement.Controllers
             // Сохраняем изменения в базе данных
             _context.SaveChanges();
 
+            // Создаем график с помощью ScottPlot
+            var plt = new ScottPlot.Plot(1200, 600);
+            plt.Title("График движения запасов");
+            plt.XLabel("Дата");
+            plt.YLabel("Количество товара");
+
+            // Преобразуем строки дат обратно в DateTime для отображения на графике
+            var datesAsDateTime = datesList.Select(dateStr => DateTime.Parse(dateStr)).ToArray();
+
+            // Преобразуем даты в double для отображения на графике
+            double[] datesAsDoubles = datesAsDateTime.Select(date => date.ToOADate()).ToArray();
+
+            // Добавляем данные для графика
+            plt.AddScatter(
+                xs: datesAsDoubles,
+                ys: quantitiesList.Select(q => (double)q).ToArray(),
+                label: "Запас товара",
+                color: System.Drawing.Color.Blue);
+
+            plt.AddScatter(
+                xs: datesAsDoubles,
+                ys: reorderPointsList.Select(q => (double)q).ToArray(),
+                label: "Пороговый уровень",
+                color: System.Drawing.Color.Red);
+
+            plt.AddScatter(
+                xs: datesAsDoubles,
+                ys: leadTimeList.Select(q => (double)q).ToArray(),
+                label: "Время выполнения заказа",
+                color: System.Drawing.Color.Green);
+
+            plt.AddScatter(
+                xs: datesAsDoubles,
+                ys: leadTimeDelayList.Select(q => (double)q).ToArray(),
+                label: "Время задержки поставки",
+                color: System.Drawing.Color.Orange);
+
+            plt.AddScatter(
+                xs: datesAsDoubles,
+                ys: expectedConsumptionList.Select(q => (double)q).ToArray(),
+                label: "Ожидаемое потребление",
+                color: System.Drawing.Color.Purple);
+
+            // Форматирование оси X для отображения дат
+            plt.XAxis.DateTimeFormat(true);
+            plt.XAxis.TickLabelStyle(rotation: 45);
+
+            plt.Legend();
+
+            string imageDirectory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+            if (!Directory.Exists(imageDirectory))
+            {
+                Directory.CreateDirectory(imageDirectory);
+            }
+
+            // Сохранение изображения на сервере
+            string imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", $"chart_{stockId}.png");
+            plt.SaveFig(imagePath);
+
             // Возвращаем данные в формате JSON
             return Json(new
             {
@@ -152,7 +211,8 @@ namespace WebInvManagement.Controllers
                 reorderPoints = reorderPointsList,
                 leadTime = leadTimeList,
                 leadTimeDelay = leadTimeDelayList,
-                expectedConsumption = expectedConsumptionList
+                expectedConsumption = expectedConsumptionList,
+                imagePath = $"/images/chart_{stockId}.png"
             });
         }
 

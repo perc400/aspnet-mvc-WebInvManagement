@@ -1,4 +1,4 @@
-﻿@model IEnumerable<User>
+﻿@model IEnumerable<WebInvManagement.ViewModels.UserInfoViewModel>
 
 @{
     ViewData["Title"] = "Пользователи";
@@ -106,7 +106,7 @@
                                 <thead>
                                     <tr>
                                         <th><span>ID</span></th>
-                                        <th><span>Пользователь</span></th>
+                                        <th><span>Электронная почта</span></th>
                                         <th class="text-center"><span>Роль</span></th>
                                         <th>&nbsp;</th>
                                     </tr>
@@ -116,14 +116,17 @@
                                     {
                                         <tr>
                                             <td>
-                                                <a>@user.Id</a>
+                                                <a>@user.UserId</a>
                                             </td>
                                             <td>
-                                                <a>@user.Username</a>
+                                                <a>@user.UserEmail</a>
                                             </td>
-                                            <td class="text-center">
-                                                <span class="label label-default">@user.Role.Title</span>
-                                            </td>
+                                            @foreach (var role in user.Roles)
+                                            {
+                                                <td class="text-center">
+                                                    <span class="label label-default">@role</span>
+                                                </td>
+                                            }
                                             <td style="width: 20%;">
                                                 <a href="#" class="table-link text-warning">
                                                     <span class="fa-stack">
