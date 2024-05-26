@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebInvManagement.Data;
 
@@ -11,9 +12,10 @@ using WebInvManagement.Data;
 namespace WebInvManagement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240525231632_NewIdentity")]
+    partial class NewIdentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -236,6 +238,9 @@ namespace WebInvManagement.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<int?>("ReportId")
+                        .HasColumnType("int");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -255,6 +260,8 @@ namespace WebInvManagement.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.HasIndex("ReportId");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -407,9 +414,6 @@ namespace WebInvManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("Id"), 1L, 1);
 
-                    b.Property<string>("AppUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
@@ -423,8 +427,6 @@ namespace WebInvManagement.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AppUserId");
 
                     b.HasIndex("OrderId");
 
@@ -665,6 +667,15 @@ namespace WebInvManagement.Migrations
                     b.Navigation("ProductionStock");
                 });
 
+            modelBuilder.Entity("WebInvManagement.Models.AppUser", b =>
+                {
+                    b.HasOne("WebInvManagement.Models.Report", "Report")
+                        .WithMany()
+                        .HasForeignKey("ReportId");
+
+                    b.Navigation("Report");
+                });
+
             modelBuilder.Entity("WebInvManagement.Models.OperationProductionStock", b =>
                 {
                     b.HasOne("WebInvManagement.Models.Operation", "Operation")
@@ -704,10 +715,6 @@ namespace WebInvManagement.Migrations
 
             modelBuilder.Entity("WebInvManagement.Models.Report", b =>
                 {
-                    b.HasOne("WebInvManagement.Models.AppUser", "AppUser")
-                        .WithMany()
-                        .HasForeignKey("AppUserId");
-
                     b.HasOne("WebInvManagement.Models.Order", "Order")
                         .WithMany()
                         .HasForeignKey("OrderId");
@@ -715,8 +722,6 @@ namespace WebInvManagement.Migrations
                     b.HasOne("WebInvManagement.Models.StockType", "StockType")
                         .WithMany()
                         .HasForeignKey("StockTypeId");
-
-                    b.Navigation("AppUser");
 
                     b.Navigation("Order");
 

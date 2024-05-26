@@ -1,0 +1,107 @@
+﻿@using WebInvManagement.ViewModels
+@model LoginViewModel
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <style>
+        body {
+            background-color: #0D1F2D;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            color: #FFFFFF;
+        }
+
+        .container {
+            background-color: #1d2e3d;
+            padding: 20px;
+            margin: 50px auto;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 500px;
+        }
+
+        .form-control {
+            color: #FF3D3D;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #FF3D3D;
+            border-radius: 5px;
+            background-color: transparent;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .btn-outline-success {
+            background-color: #7FFFD4;
+            color: #FFFFFF;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-right: 10px;
+        }
+
+            .btn-outline-success:hover {
+                background-color: #66c6ba;
+            }
+
+        .btn-outline-secondary {
+            background-color: #6c757d;
+            color: #FFFFFF;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+            .btn-outline-secondary:hover {
+                background-color: #5a6268;
+            }
+
+        .text-danger {
+            color: #FF3D3D;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h4>LogIn</h4>
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">
+                <span><b>Sorry!</b> - @TempData["Error"]</span>
+            </div>
+        }
+        <form asp-action="Login">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control">
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password" class="control-label"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input class="btn btn-outline-success" type="submit" value="Log in" />
+                <a class="btn btn-outline-secondary" asp-controller="Club" asp-action="Index">Cancel</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

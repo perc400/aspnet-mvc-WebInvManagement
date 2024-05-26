@@ -6,8 +6,7 @@ using iText.Kernel.Pdf;
 using iText.Layout;
 using iText.Layout.Element;
 using iText.IO.Image;
-using SkiaSharp;
-using Newtonsoft.Json;
+using iText.Kernel.Font;
 
 namespace WebInvManagement.Controllers
 {
@@ -60,19 +59,22 @@ namespace WebInvManagement.Controllers
             var pdf = new PdfDocument(writer);
             var document = new Document(pdf);
 
+            var font = PdfFontFactory.CreateFont("C:\\Windows\\Fonts\\arial.ttf", "Identity-H");
+            document.SetFont(font);
+
             // Добавляем заголовок
-            document.Add(new Paragraph("Stock Report"));
+            document.Add(new Paragraph("Отчет о наименовании определенного запаса"));
 
             // Добавляем данные о запасе
-            document.Add(new Paragraph($"Stock Title: {stock.Title}"));
-            document.Add(new Paragraph($"ABC Group: {abcGroup}"));
-            document.Add(new Paragraph($"Warehouse: {warehouse.Title}"));
+            document.Add(new Paragraph($"Наименование товара: {stock.Title}"));
+            document.Add(new Paragraph($"Группа, присвоенная после ABC-анализа: {abcGroup}"));
+            document.Add(new Paragraph($"Склад (местонахождение): {warehouse.Title}"));
 
             // Добавляем таблицу с операциями
             var table = new Table(3);
-            table.AddCell("Date");
-            table.AddCell("Number of operations");
-            table.AddCell("Cost");
+            table.AddCell("Дата последней операции");
+            table.AddCell("Количество операций, связанных с запасом");
+            table.AddCell("Общая стоимость операций");
             foreach (var operation in operations)
             {
                 table.AddCell(operation.Date.ToString());
@@ -80,6 +82,20 @@ namespace WebInvManagement.Controllers
                 table.AddCell(operation.Price.ToString());
             }
             document.Add(table);
+
+            // Получаем путь к изображению графика
+            string imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", $"chart_{stockId}.png");
+
+            if (System.IO.File.Exists(imagePath))
+            {
+                // Добавление изображения в PDF-документ
+                var image = new iText.Layout.Element.Image(ImageDataFactory.Create(imagePath));
+                document.Add(image);
+            }
+            else
+            {
+                document.Add(new Paragraph("График не найден."));
+            }
 
             // Закрываем документ
             document.Close();
@@ -100,42 +116,55 @@ namespace WebInvManagement.Controllers
                 .ThenInclude(ops => ops.Operation)
                 .ToListAsync();
 
-            // Создаем список для хранения оборота для каждого товара
-            var turnover = new Dictionary<int, int>();
+            // Шаг 1: Рассчитываем общие стоимости для каждого товара
+            var stockValues = new Dictionary<int, decimal>();
 
-            // Считаем оборот для каждого товара
             foreach (var stock in stocks)
             {
-                var totalTurnover = stock.OperationProductionStocks.Sum(ops => ops.Operation?.Quantity ?? 0);
-                turnover.Add(stock.Id, totalTurnover);
+                var totalValue = stock.Cost * stock.Quantity;
+                stockValues.Add(stock.Id, (decimal)totalValue);
+                Console.WriteLine($"Общая стоимость для товара {stock.Id} равна {totalValue}");
             }
 
-            // Сортируем товары по обороту
-            var sortedStocks = stocks.OrderByDescending(s => turnover[s.Id]);
+            // Шаг 2: Ранжируем товары по общей стоимости в убывающей последовательности
+            var sortedStockValues = stockValues.OrderByDescending(kv => kv.Value).ToList();
 
-            // Рассчитываем суммарный оборот для всех товаров
-            var totalTurnoverAllStocks = turnover.Values.Sum();
-
-            // Рассчитываем долю оборота для каждого товара
-            var relativeTurnover = new Dictionary<int, double>();
-            foreach (var stock in sortedStocks)
+            // Шаг 3: Рассчитываем долю затрат для каждого товара
+            var totalValueAllStocks = sortedStockValues.Sum(kv => kv.Value);
+            var relativeStockValues = new Dictionary<int, decimal>();
+            foreach (var kv in sortedStockValues)
             {
-                var relativeTurnoverValue = (double)turnover[stock.Id] / totalTurnoverAllStocks * 100;
-                relativeTurnover.Add(stock.Id, relativeTurnoverValue);
+                var relativeValue = kv.Value / totalValueAllStocks * 100;
+                relativeStockValues.Add(kv.Key, relativeValue);
+                Console.WriteLine($"Доля затрат для товара {kv.Key} равна {relativeValue}");
             }
 
-            // Сохраняем результаты анализа в базе данных
-            foreach (var stock in sortedStocks)
+            // Шаг 4: Расчет нарастающих итогов
+            var cumulativePercentage = 0m;
+            var cumulativePercentages = new Dictionary<int, decimal>();
+            var cumulativePercentageList = new List<decimal>();
+            foreach (var kv in sortedStockValues)
             {
-                // Находим соответствующую группу ABC для товара
+                cumulativePercentage += relativeStockValues[kv.Key];
+                cumulativePercentages.Add(kv.Key, cumulativePercentage);
+                cumulativePercentageList.Add(cumulativePercentage);
+                Console.WriteLine($"Нарастающий итог для товара {kv.Key} равен {cumulativePercentage}");
+            }
+
+            // Определение групп ABC
+            int nA = 0, nB = 0;
+            foreach (var kv in cumulativePercentages)
+            {
                 string abcGroup = "";
-                if (relativeTurnover[stock.Id] >= 80)
+                if (kv.Value <= 80)
                 {
                     abcGroup = "A";
+                    nA++;
                 }
-                else if (relativeTurnover[stock.Id] >= 15)
+                else if (kv.Value <= 95)
                 {
                     abcGroup = "B";
+                    nB++;
                 }
                 else
                 {
@@ -143,28 +172,16 @@ namespace WebInvManagement.Controllers
                 }
 
                 // Находим ID группы ABC в базе данных
-                int abcGroupId = 0;
-                switch (abcGroup)
-                {
-                    case "A":
-                        abcGroupId = 4; // ID группы A в базе данных
-                        break;
-                    case "B":
-                        abcGroupId = 5; // ID группы B в базе данных
-                        break;
-                    case "C":
-                        abcGroupId = 6; // ID группы C в базе данных
-                        break;
-                    default:
-                        // Обработка ошибки
-                        break;
-                }
+                var abcGroupId = await _context.ABCGroups
+                    .Where(g => g.Group == abcGroup)
+                    .Select(g => g.Id)
+                    .FirstOrDefaultAsync();
 
                 // Создаем связь между товаром и группой ABC
                 var abcProductionStock = new ABCProductionStock
                 {
-                    ProductionStockId = stock.Id,
-                    ABCId = abcGroupId
+                    ProductionStockId = kv.Key,
+                    ABCId = (int)abcGroupId
                 };
 
                 _context.ABCProductionStocks.Add(abcProductionStock);
@@ -178,11 +195,19 @@ namespace WebInvManagement.Controllers
                 .ThenInclude(abc => abc.ABCGroup)
                 .ToListAsync();
 
-            // Сортируем товары по группе ABC
-            stocksWithABCGroups = stocksWithABCGroups.OrderByDescending(s => s.ABCProductionStocks.FirstOrDefault()?.ABCGroup?.Group).ToList();
+            // Сортируем товары по группе ABC: сначала A, затем B, затем C
+            var sortedStocksWithABCGroups = stocksWithABCGroups
+                .OrderBy(s => s.ABCProductionStocks.FirstOrDefault()?.ABCGroup.Group)
+                .ToList();
+
+            // Передаем данные для графика во ViewBag
+            ViewBag.CumulativePercentages = cumulativePercentageList;
+            ViewBag.StockLabels = sortedStockValues.Select(kv => kv.Key).ToList();
+            ViewBag.NA = nA;  // передаем количество товаров группы A
+            ViewBag.NB = nA + nB;  // передаем количество товаров групп A и B
 
             // Передаем результаты анализа на представление
-            return View(stocksWithABCGroups);
+            return View(sortedStocksWithABCGroups);
         }
     }
 }
