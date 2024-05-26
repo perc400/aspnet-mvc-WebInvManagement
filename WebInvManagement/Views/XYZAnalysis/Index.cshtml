@@ -1,0 +1,134 @@
+﻿@model IEnumerable<ProductionStock>
+
+@{
+    ViewData["Title"] = "Результаты XYZ-анализа";
+}
+
+<style>
+    body {
+        background-color: #0D1F2D;
+        color: #FFFFFF;
+    }
+
+    .table th {
+        color: #FF3D3D;
+    }
+
+    .table tbody tr:hover {
+        background-color: #FF3D3D;
+        cursor: pointer;
+    }
+
+    .table {
+        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.5);
+    }
+
+    .table {
+        border-radius: 10px;
+    }
+
+    .main-container {
+        background-color: #1d2e3d;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 20px;
+    }
+
+    .table td {
+        border: 1px solid #FFFFFF;
+        padding: 8px;
+    }
+
+        .table td.value {
+            color: #7FFFD4;
+        }
+</style>
+
+<div class="main-container">
+    <h1>@ViewData["Title"]</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID Запаса</th>
+                <th>Наименование</th>
+                <th>XYZ-группа</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var stock in Model)
+            {
+                <tr>
+                    <td class="value">@stock.Id</td>
+                    <td class="value">@stock.Title</td>
+                    <td class="value">
+                        @{
+                            // Найдем соответствующую группу XYZ для текущего товара
+                            var xyzGroup = stock.XYZProductionStocks.FirstOrDefault()?.XYZGroup?.Group ?? "Unknown";
+                        }
+                        @xyzGroup
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div class="chart-container">
+        <canvas id="xyzChart"></canvas>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        var ctx = document.getElementById('xyzChart').getContext('2d');
+        var cumulativePercentages = @Html.Raw(Json.Serialize(ViewBag.CumulativePercentages));
+        var stockLabels = @Html.Raw(Json.Serialize(ViewBag.StockLabels));
+        var nX = @Html.Raw(Json.Serialize(ViewBag.NX));
+        var nY = @Html.Raw(Json.Serialize(ViewBag.NY));
+
+        var xyzChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: stockLabels,
+                datasets: [{
+                    label: 'Кривая Лоренца',
+                    borderColor: 'rgb(255, 99, 132)',
+                    data: cumulativePercentages,
+                    fill: false,
+                    tension: 0.4 // Установка сглаживания кривой
+                },
+                {
+                    label: 'Граница X',
+                    borderColor: 'rgb(54, 162, 235)',
+                    data: Array(stockLabels.length).fill(cumulativePercentages[nX - 1]),
+                    borderDash: [5, 5],
+                    pointRadius: 0
+                },
+                {
+                    label: 'Граница Y',
+                    borderColor: 'rgb(75, 192, 192)',
+                    data: Array(stockLabels.length).fill(cumulativePercentages[nY - 1]),
+                    borderDash: [5, 5],
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: 'white'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: 'white'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}
