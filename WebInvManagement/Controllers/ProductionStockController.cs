@@ -36,8 +36,15 @@ namespace WebInvManagement.Controllers
                 double safetyStock = dailyConsumption * leadTimeDelay;
                 double expectedConsumptionDuringLeadTime = dailyConsumption * leadTime;
                 double reorderPoint = safetyStock + expectedConsumptionDuringLeadTime;
-                double optimalOrderSize = Math.Sqrt((double)((2 * stock.CarryingCostPerOrder * stock.AnnualDemand) / (stock.HoldingCostPerUnitPerYear * (leadTime + leadTimeDelay))));
+                double optimalOrderSize = Math.Sqrt((2 * stock.CarryingCostPerOrder.Value * stock.AnnualDemand.Value) /
+                                            (stock.HoldingCostPerUnitPerYear.Value + 0.12 * stock.Cost.Value));
                 double maximumDesirableStockLevel = safetyStock + optimalOrderSize;
+
+                // Корректируем размер заказа, если он меньше порогового уровня
+                if (optimalOrderSize < reorderPoint)
+                {
+                    optimalOrderSize = reorderPoint * 1.2;
+                }
 
                 // Обновляем поля объекта ProductionStock
                 stock.DailyConsumption = (int)Math.Floor(dailyConsumption);
@@ -71,7 +78,7 @@ namespace WebInvManagement.Controllers
             }
 
             // Устанавливаем начальные значения для компонентов
-            int currentStockLevel = stock.MaximumDesirableStockLevel ?? 0;
+            int currentStockLevel = stock.MaxDesiredLevel ?? 0;
             DateTime orderPlacementTime = startDate; // Время размещения заказа
             DateTime orderCompletionTime = startDate.AddDays(stock.OptimalOrderSize ?? 0); // Время завершения заказа
 
@@ -90,7 +97,7 @@ namespace WebInvManagement.Controllers
                 datesList.Add(date.ToShortDateString());
 
                 // Проверяем, достиг ли уровень запаса порогового уровня
-                if (currentStockLevel <= stock.ThresholdLevel)
+                if (currentStockLevel <= stock.ReorderPoint)
                 {
                     // В этот день делаем заказ и пополняем запасы
                     currentStockLevel += stock.OptimalOrderSize ?? 0;
@@ -107,7 +114,7 @@ namespace WebInvManagement.Controllers
 
                 // Добавляем текущие значения компонентов в соответствующие списки
                 quantitiesList.Add(currentStockLevel);
-                reorderPointsList.Add(stock.ThresholdLevel ?? 0);
+                reorderPointsList.Add(stock.ReorderPoint ?? 0);
                 leadTimeList.Add(leadTime);
                 leadTimeDelayList.Add(leadTimeDelay);
                 expectedConsumptionList.Add(expectedConsumptionDuringLeadTime);

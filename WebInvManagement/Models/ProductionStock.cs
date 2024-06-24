@@ -22,20 +22,18 @@ namespace WebInvManagement.Models
         // Many-to-many [XYZ has Stock]
         public ICollection<XYZProductionStock>? XYZProductionStocks { get; set; }
 
-        public int? ThresholdLevel { get; set; } // пороговый уровень запасов
+        // Поля для системы управления запасами
         public int? MaxDesiredLevel { get; set; } // максимальный желаемый уровень запасов
         public int? OptimalOrderSize { get; set; } // оптимальный размер заказа
-
-        // Дополнительные поля для системы управления запасами
         public int? DailyConsumption { get; set; } // дневное потребление товара на складе
         public int? SafetyStock { get; set; } // гарантийный запас на складе
         public int? ExpectedConsumptionDuringLeadTime { get; set; } // ожидаемое потребление товара на складе за время выполнения заказа
         public int? ReorderPoint { get; set; } // пороговый уровень запасов на складе
         public int? MaximumDesirableStockLevel { get; set; } // максимальный желательный уровень запасов на складе
-        public double? CarryingCostPerOrder { get; set; } // стоимость заказа
-        public double? HoldingCostPerUnitPerYear { get; set; } // стоимость хранения единицы товара в год
+        public double? CarryingCostPerOrder { get; set; } // транспортные расходы на выполнение одного заказа
+        public double? HoldingCostPerUnitPerYear { get; set; } // издержки на хранение единицы товара
         public double? AnnualDemand { get; set; } // годовой спрос
-        public int? Cost { get; set; } // стоимость
+        public int? Cost { get; set; } // стоимость есдиницы товара
 
         // Many-to-many [StockMovement has ProductionStock]
         public ICollection<StockMovementProductionStock>? StockMovementProductionStocks { get; set; }

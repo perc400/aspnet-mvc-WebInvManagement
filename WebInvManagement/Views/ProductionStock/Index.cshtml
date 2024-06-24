@@ -123,19 +123,14 @@
         // Обработчик нажатия кнопки "Показать график"
         $('.show-chart-button').click(function () {
             var stockId = $(this).data('stock-id');
-
-            // Показываем контейнер для графика
             $('#chart-container-' + stockId).show();
 
-            // Отправляем AJAX-запрос на сервер для симуляции движения запасов и получения данных для графика
             $.ajax({
                 url: '/ProductionStock/SimulateStockMovements',
                 method: 'POST',
                 data: { stockId: stockId, startDate: '2024-05-01', endDate: '2024-12-01' },
                 success: function (response) {
-                    // Если симуляция выполнена успешно и получены данные для графика
                     if (response && response.dates && response.quantities) {
-                        // Построение графика с помощью Highcharts
                         Highcharts.chart('chart-container-' + stockId, {
                             title: {
                                 text: 'График движения запасов'
@@ -157,12 +152,26 @@
                                 color: 'red'
                             }, {
                                 name: 'Время выполнения заказа',
-                                data: response.leadTime,
-                                color: 'green'
+                                data: response.leadTime.map(function (value, index) {
+                                    return {
+                                        x: index,
+                                        y: value,
+                                        color: 'green'
+                                    };
+                                }),
+                                type: 'line',
+                                step: 'left'
                             }, {
                                 name: 'Время задержки поставки',
-                                data: response.leadTimeDelay,
-                                color: 'orange'
+                                data: response.leadTimeDelay.map(function (value, index) {
+                                    return {
+                                        x: index,
+                                        y: value,
+                                        color: 'orange'
+                                    };
+                                }),
+                                type: 'line',
+                                step: 'left'
                             }, {
                                 name: 'Ожидаемое потребление',
                                 data: response.expectedConsumption,
