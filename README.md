@@ -1,3 +1,5 @@
+Информационно-аналитическая система управления производственными запасами:
+
 Home
 ![](https://github.com/83id2sw/aspnet-mvc-WebInvManagement/blob/master/Images/home_new.png)
 Stocks
